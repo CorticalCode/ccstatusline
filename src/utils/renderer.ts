@@ -736,7 +736,7 @@ export function renderStatusLine(
 
             if (widgetText) {
                 // Special handling for custom-command with preserveColors
-                if (widget.type === 'custom-command' && widget.preserveColors) {
+                if (widget.preserveColors) {
                     // Handle max width truncation for commands with ANSI codes
                     let finalOutput = widgetText;
                     if (widget.maxWidth && widget.maxWidth > 0) {

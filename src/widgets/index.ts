@@ -49,6 +49,7 @@ export { WeeklyUsageWidget } from './WeeklyUsage';
 export { BlockResetTimerWidget } from './BlockResetTimer';
 export { WeeklyResetTimerWidget } from './WeeklyResetTimer';
 export { ContextBarWidget } from './ContextBar';
+export { ContextGaugeWidget } from './ContextGauge';
 export { LinkWidget } from './Link';
 export { SkillsWidget } from './Skills';
 export { ThinkingEffortWidget } from './ThinkingEffort';
