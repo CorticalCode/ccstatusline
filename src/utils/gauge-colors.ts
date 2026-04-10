@@ -25,9 +25,9 @@ const DEFAULT_COLOR_SCHEME: ColorScheme = {
         { start: { r: 55, g: 10, b: 8 }, end: { r: 230, g: 58, b: 54 } }
     ],
     waypoints: [
+        { r: 40, g: 40, b: 180 },
         { r: 22, g: 85, b: 22 },
         { r: 176, g: 136, b: 0 },
-        { r: 230, g: 58, b: 54 },
         { r: 230, g: 58, b: 54 }
     ],
     dim: 245
