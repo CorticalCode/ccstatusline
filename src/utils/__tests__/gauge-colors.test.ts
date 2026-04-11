@@ -17,12 +17,8 @@ describe('COLOR_SCHEMES', () => {
         expect(COLOR_SCHEMES.default).toBeDefined();
     });
 
-    it('has a protanopia scheme', () => {
-        expect(COLOR_SCHEMES.protanopia).toBeDefined();
-    });
-
-    it('has a deuteranopia scheme', () => {
-        expect(COLOR_SCHEMES.deuteranopia).toBeDefined();
+    it('has an accessible scheme', () => {
+        expect(COLOR_SCHEMES.accessible).toBeDefined();
     });
 
     it('has a high-contrast scheme', () => {
@@ -69,7 +65,7 @@ describe('getColorScheme', () => {
     });
 
     it('returns the named scheme', () => {
-        expect(getColorScheme('protanopia')).toBe(COLOR_SCHEMES.protanopia);
+        expect(getColorScheme('accessible')).toBe(COLOR_SCHEMES.accessible);
     });
 
     it('returns default for undefined', () => {
@@ -81,8 +77,7 @@ describe('getColorSchemeNames', () => {
     it('returns all scheme names', () => {
         const names = getColorSchemeNames();
         expect(names).toContain('default');
-        expect(names).toContain('protanopia');
-        expect(names).toContain('deuteranopia');
+        expect(names).toContain('accessible');
         expect(names).toContain('high-contrast');
     });
 });

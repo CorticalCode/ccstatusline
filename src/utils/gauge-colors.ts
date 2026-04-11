@@ -35,35 +35,19 @@ const DEFAULT_COLOR_SCHEME: ColorScheme = {
 
 export const COLOR_SCHEMES: Record<string, ColorScheme> = {
     'default': DEFAULT_COLOR_SCHEME,
-    'protanopia': {
-        name: 'Protanopia',
+    'accessible': {
+        name: 'Accessible (Okabe-Ito)',
         zones: [
-            { start: { r: 10, g: 10, b: 60 }, end: { r: 40, g: 40, b: 180 } },
-            { start: { r: 10, g: 50, b: 50 }, end: { r: 40, g: 180, b: 180 } },
-            { start: { r: 50, g: 38, b: 0 }, end: { r: 176, g: 136, b: 0 } },
-            { start: { r: 140, g: 140, b: 140 }, end: { r: 255, g: 255, b: 255 } }
+            { start: { r: 0, g: 57, b: 89 }, end: { r: 0, g: 114, b: 178 } },
+            { start: { r: 43, g: 90, b: 117 }, end: { r: 86, g: 180, b: 233 } },
+            { start: { r: 120, g: 114, b: 33 }, end: { r: 240, g: 228, b: 66 } },
+            { start: { r: 107, g: 47, b: 0 }, end: { r: 213, g: 94, b: 0 } }
         ],
         waypoints: [
-            { r: 40, g: 40, b: 180 },
-            { r: 40, g: 180, b: 180 },
-            { r: 176, g: 136, b: 0 },
-            { r: 255, g: 255, b: 255 }
-        ],
-        dim: 245
-    },
-    'deuteranopia': {
-        name: 'Deuteranopia',
-        zones: [
-            { start: { r: 10, g: 10, b: 60 }, end: { r: 40, g: 40, b: 180 } },
-            { start: { r: 60, g: 30, b: 0 }, end: { r: 200, g: 100, b: 0 } },
-            { start: { r: 50, g: 38, b: 0 }, end: { r: 176, g: 136, b: 0 } },
-            { start: { r: 140, g: 140, b: 140 }, end: { r: 255, g: 255, b: 255 } }
-        ],
-        waypoints: [
-            { r: 40, g: 40, b: 180 },
-            { r: 200, g: 100, b: 0 },
-            { r: 176, g: 136, b: 0 },
-            { r: 255, g: 255, b: 255 }
+            { r: 0, g: 114, b: 178 },
+            { r: 86, g: 180, b: 233 },
+            { r: 240, g: 228, b: 66 },
+            { r: 213, g: 94, b: 0 }
         ],
         dim: 245
     },
