@@ -176,7 +176,7 @@ describe('buildDial', () => {
     it('returns third glyph at 60%', () => {
         const dial = buildDial({ pct: 60, scheme });
         const stripped = dial.replace(/\x1b\[[^m]*m/g, '');
-        expect(stripped).toBe('◶');
+        expect(stripped).toBe('◕');
     });
 
     it('returns fourth glyph at 100%', () => {

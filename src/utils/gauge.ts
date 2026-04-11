@@ -17,7 +17,7 @@ export const BAR_STYLES: Record<BarStyle, { filled: string; empty: string }> = {
     halfblocks: { filled: '▌', empty: ' ' }
 };
 
-export const DIAL_GLYPHS = ['◔', '◑', '◶', '●'] as const;
+export const DIAL_GLYPHS = ['◔', '◑', '◕', '●'] as const;
 
 const ANSI_RESET = '\x1b[0m';
 
