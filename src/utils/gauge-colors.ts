@@ -38,9 +38,9 @@ export const COLOR_SCHEMES: Record<string, ColorScheme> = {
     'accessible': {
         name: 'Accessible (Okabe-Ito)',
         zones: [
-            { start: { r: 0, g: 57, b: 89 }, end: { r: 0, g: 114, b: 178 } },
-            { start: { r: 43, g: 90, b: 117 }, end: { r: 86, g: 180, b: 233 } },
+            { start: { r: 0, g: 57, b: 89 }, end: { r: 86, g: 180, b: 233 } },
             { start: { r: 120, g: 114, b: 33 }, end: { r: 240, g: 228, b: 66 } },
+            { start: { r: 107, g: 47, b: 0 }, end: { r: 213, g: 94, b: 0 } },
             { start: { r: 107, g: 47, b: 0 }, end: { r: 213, g: 94, b: 0 } }
         ],
         waypoints: [
