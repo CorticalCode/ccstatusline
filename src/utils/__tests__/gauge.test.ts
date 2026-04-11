@@ -167,16 +167,34 @@ describe('buildDial', () => {
         expect(stripped).toBe('◔');
     });
 
-    it('returns second glyph at 30%', () => {
-        const dial = buildDial({ pct: 30, scheme });
+    it('returns first glyph at 24%', () => {
+        const dial = buildDial({ pct: 24, scheme });
+        const stripped = dial.replace(/\x1b\[[^m]*m/g, '');
+        expect(stripped).toBe('◔');
+    });
+
+    it('returns second glyph at 25%', () => {
+        const dial = buildDial({ pct: 25, scheme });
         const stripped = dial.replace(/\x1b\[[^m]*m/g, '');
         expect(stripped).toBe('◑');
     });
 
-    it('returns third glyph at 60%', () => {
-        const dial = buildDial({ pct: 60, scheme });
+    it('returns second glyph at 49%', () => {
+        const dial = buildDial({ pct: 49, scheme });
+        const stripped = dial.replace(/\x1b\[[^m]*m/g, '');
+        expect(stripped).toBe('◑');
+    });
+
+    it('returns third glyph at 50%', () => {
+        const dial = buildDial({ pct: 50, scheme });
         const stripped = dial.replace(/\x1b\[[^m]*m/g, '');
         expect(stripped).toBe('◕');
+    });
+
+    it('returns fourth glyph at 75%', () => {
+        const dial = buildDial({ pct: 75, scheme });
+        const stripped = dial.replace(/\x1b\[[^m]*m/g, '');
+        expect(stripped).toBe('●');
     });
 
     it('returns fourth glyph at 100%', () => {

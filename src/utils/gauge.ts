@@ -128,17 +128,17 @@ export function buildDial(options: DialOptions): string {
     const { pct, scheme } = options;
     const clampedPct = Math.max(0, Math.min(100, pct));
 
-    const glyphIndex = clampedPct >= 100 ? 3 : Math.floor(clampedPct / 25);
+    // Leading alignment: glyph represents the current range (0-24% = ◔, 25-49% = ◑, etc.)
+    const numGlyphs = DIAL_GLYPHS.length;
+    const step = 100 / numGlyphs;
+    const glyphIndex = clampedPct >= 100
+        ? numGlyphs - 1
+        : Math.min(Math.floor(clampedPct / step), numGlyphs - 1);
     const glyph = DIAL_GLYPHS[glyphIndex];
 
-    const quartileStart = glyphIndex * 25;
-    const quartileSize = 25;
-    const t = Math.max(0.1, (clampedPct - quartileStart) / quartileSize);
-
-    const zone = scheme.zones[glyphIndex] ?? scheme.zones[0];
-    const rgb = zone !== undefined
-        ? interpolateRGB(zone.start, zone.end, t)
-        : { r: 0, g: 0, b: 0 };
+    // Color from waypoint interpolation so glyph matches percentage text color
+    const t = Math.max(0, Math.min(1, clampedPct / 100));
+    const rgb = interpolateThroughWaypoints(scheme.waypoints, t);
 
     return `${rgbToAnsi(rgb)}${glyph}${ANSI_RESET}`;
 }
