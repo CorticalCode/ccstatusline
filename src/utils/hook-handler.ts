@@ -1,7 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
-import { getSkillsFilePath } from './skills';
+import { recordSkillInvocation } from './skills';
 
 interface HookInput {
     session_id?: string;
@@ -37,14 +34,6 @@ export function handleHookInput(input: string | null): void {
             return;
         }
 
-        const filePath = getSkillsFilePath(sessionId);
-        fs.mkdirSync(path.dirname(filePath), { recursive: true });
-        const entry = JSON.stringify({
-            timestamp: new Date().toISOString(),
-            session_id: sessionId,
-            skill: skillName,
-            source: data.hook_event_name
-        });
-        fs.appendFileSync(filePath, entry + '\n');
+        recordSkillInvocation(sessionId, skillName, data.hook_event_name ?? '');
     } catch { /* ignore parse errors */ }
 }
