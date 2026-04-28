@@ -92,13 +92,14 @@ export function recordSkillInvocation(sessionId: string, skill: string, source: 
         // than appending through the symlink. O_CREAT creates a fresh regular
         // file when the path is absent. fstat on the open fd verifies the
         // descriptor is a regular file, and the size cap prevents unbounded
-        // growth.
+        // growth — checked against the projected post-append size so a single
+        // oversized invocation cannot push the file past the cap.
         fd = fs.openSync(
             filePath,
             fs.constants.O_WRONLY | fs.constants.O_APPEND | fs.constants.O_CREAT | fs.constants.O_NOFOLLOW
         );
         const stats = fs.fstatSync(fd);
-        if (!stats.isFile() || stats.size > MAX_SKILLS_FILE_BYTES) {
+        if (!stats.isFile()) {
             return;
         }
         const invocation: SkillInvocation = {
@@ -107,7 +108,11 @@ export function recordSkillInvocation(sessionId: string, skill: string, source: 
             skill,
             source
         };
-        fs.writeSync(fd, JSON.stringify(invocation) + '\n');
+        const entry = JSON.stringify(invocation) + '\n';
+        if (stats.size + entry.length > MAX_SKILLS_FILE_BYTES) {
+            return;
+        }
+        fs.writeSync(fd, entry);
     } catch {
         // Best-effort — cache write failure should not break hook handling.
     } finally {

@@ -58,6 +58,28 @@ describe('skills metrics', () => {
         });
     });
 
+    it('returns EMPTY metrics for an unknown session (missing cache file)', () => {
+        expect(getSkillsMetrics('never-recorded')).toEqual({
+            totalInvocations: 0,
+            uniqueSkills: [],
+            lastSkill: null
+        });
+    });
+
+    it('filters malformed JSONL lines and returns only valid invocations', () => {
+        writeSkillsLog('mixed-session', [
+            JSON.stringify({ skill: 'commit', session_id: 'mixed-session' }),
+            '{ this is not valid json',
+            JSON.stringify({ skill: 'review-pr', session_id: 'mixed-session' }),
+            JSON.stringify({ skill: 'commit', session_id: 'mixed-session' })
+        ]);
+
+        const metrics = getSkillsMetrics('mixed-session');
+        expect(metrics.totalInvocations).toBe(3);
+        expect(metrics.uniqueSkills).toEqual(['commit', 'review-pr']);
+        expect(metrics.lastSkill).toBe('commit');
+    });
+
     it('sanitizes path traversal in session ID', () => {
         const malicious = '../../../../../../tmp/pwn';
         const filePath = getSkillsFilePath(malicious);
@@ -112,6 +134,16 @@ describe('skills metrics', () => {
         expect(metrics).toEqual({ totalInvocations: 0, uniqueSkills: [], lastSkill: null });
     });
 
+    it('returns EMPTY metrics when skills file exceeds size cap', () => {
+        const cacheDir = path.join(testHomeDir, '.cache', 'ccstatusline', 'skills');
+        fs.mkdirSync(cacheDir, { recursive: true });
+        const filePath = path.join(cacheDir, 'skills-big-test.jsonl');
+        fs.writeFileSync(filePath, 'a'.repeat(1024 * 1024 + 100));
+
+        const metrics = getSkillsMetrics('big-test');
+        expect(metrics).toEqual({ totalInvocations: 0, uniqueSkills: [], lastSkill: null });
+    });
+
     it('records and reads back a skill invocation', () => {
         recordSkillInvocation('rec-session', 'commit', 'PreToolUse');
         expect(getSkillsMetrics('rec-session')).toEqual({
@@ -119,6 +151,31 @@ describe('skills metrics', () => {
             uniqueSkills: ['commit'],
             lastSkill: 'commit'
         });
+    });
+
+    it('records sequential invocations monotonically', () => {
+        recordSkillInvocation('seq-session', 'commit', 'PreToolUse');
+        recordSkillInvocation('seq-session', 'review-pr', 'PreToolUse');
+        recordSkillInvocation('seq-session', 'commit', 'PreToolUse');
+
+        const metrics = getSkillsMetrics('seq-session');
+        expect(metrics.totalInvocations).toBe(3);
+        expect(metrics.uniqueSkills).toEqual(['commit', 'review-pr']);
+        expect(metrics.lastSkill).toBe('commit');
+    });
+
+    it('isolates skills metrics across distinct sessions', () => {
+        recordSkillInvocation('session-a', 'commit', 'PreToolUse');
+        recordSkillInvocation('session-a', 'review-pr', 'PreToolUse');
+        recordSkillInvocation('session-b', 'lint', 'PreToolUse');
+
+        expect(getSkillsMetrics('session-a').totalInvocations).toBe(2);
+        expect(getSkillsMetrics('session-a').lastSkill).toBe('review-pr');
+        expect(getSkillsMetrics('session-b').totalInvocations).toBe(1);
+        expect(getSkillsMetrics('session-b').lastSkill).toBe('lint');
+
+        const cacheDir = path.join(testHomeDir, '.cache', 'ccstatusline', 'skills');
+        expect(fs.readdirSync(cacheDir).length).toBe(2);
     });
 
     it.skipIf(process.platform === 'win32')('does not write through a planted symlink', () => {
@@ -133,6 +190,7 @@ describe('skills metrics', () => {
         recordSkillInvocation(sessionId, 'commit', 'PreToolUse');
 
         expect(fs.readFileSync(decoyTarget, 'utf-8')).toBe('do not overwrite me');
+        expect(fs.lstatSync(symlinkPath).isSymbolicLink()).toBe(true);
     });
 
     it('refuses to append when skills file exceeds size cap', () => {
@@ -142,6 +200,21 @@ describe('skills metrics', () => {
         const filePath = path.join(cacheDir, `skills-${sessionId}.jsonl`);
         // Write a file larger than the 1 MiB cap
         fs.writeFileSync(filePath, 'a'.repeat(1024 * 1024 + 100));
+        const sizeBefore = fs.statSync(filePath).size;
+
+        recordSkillInvocation(sessionId, 'commit', 'PreToolUse');
+
+        const sizeAfter = fs.statSync(filePath).size;
+        expect(sizeAfter).toBe(sizeBefore);
+    });
+
+    it('refuses to append when projected size would exceed the cap', () => {
+        const cacheDir = path.join(testHomeDir, '.cache', 'ccstatusline', 'skills');
+        fs.mkdirSync(cacheDir, { recursive: true });
+        const sessionId = 'near-cap';
+        const filePath = path.join(cacheDir, `skills-${sessionId}.jsonl`);
+        // Write a file just under the cap; the next invocation would push it over.
+        fs.writeFileSync(filePath, 'a'.repeat(1024 * 1024 - 10));
         const sizeBefore = fs.statSync(filePath).size;
 
         recordSkillInvocation(sessionId, 'commit', 'PreToolUse');
