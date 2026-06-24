@@ -222,4 +222,28 @@ describe('skills metrics', () => {
         const sizeAfter = fs.statSync(filePath).size;
         expect(sizeAfter).toBe(sizeBefore);
     });
+
+    it('projects the append size in UTF-8 bytes, not UTF-16 length', () => {
+        const cacheDir = path.join(testHomeDir, '.cache', 'ccstatusline', 'skills');
+        fs.mkdirSync(cacheDir, { recursive: true });
+        const sessionId = 'mb';
+        const filePath = path.join(cacheDir, `skills-${sessionId}.jsonl`);
+        const MAX = 1024 * 1024;
+        // Each BMP char U+4E00 is one UTF-16 code unit but three UTF-8 bytes.
+        const skill = '一'.repeat(200);
+        const source = 'PreToolUse';
+        // toISOString() is a fixed 24 chars, so this sample's lengths match the
+        // real entry recordSkillInvocation will build.
+        const sample = JSON.stringify({ timestamp: '2026-01-01T00:00:00.000Z', session_id: sessionId, skill, source }) + '\n';
+        // Size the file so the UTF-16-length projection exactly fits the cap
+        // (the buggy check would accept) while the UTF-8-byte projection overflows.
+        fs.writeFileSync(filePath, 'a'.repeat(MAX - sample.length));
+        const sizeBefore = fs.statSync(filePath).size;
+
+        recordSkillInvocation(sessionId, skill, source);
+
+        const sizeAfter = fs.statSync(filePath).size;
+        expect(sizeAfter).toBe(sizeBefore);
+        expect(sizeAfter).toBeLessThanOrEqual(MAX);
+    });
 });

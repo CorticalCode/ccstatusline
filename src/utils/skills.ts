@@ -109,7 +109,10 @@ export function recordSkillInvocation(sessionId: string, skill: string, source: 
             source
         };
         const entry = JSON.stringify(invocation) + '\n';
-        if (stats.size + entry.length > MAX_SKILLS_FILE_BYTES) {
+        // Project against UTF-8 byte length (what writeSync emits), not the
+        // string's UTF-16 code-unit count — multibyte session/skill data would
+        // otherwise undercount and let a write exceed the cap.
+        if (stats.size + Buffer.byteLength(entry, 'utf8') > MAX_SKILLS_FILE_BYTES) {
             return;
         }
         fs.writeSync(fd, entry);
